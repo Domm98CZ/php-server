@@ -1,4 +1,3 @@
 cd php82
-docker build . -t domm98cz/php-server:8.2 --no-cache
-docker push domm98cz/php-server:8.2
-
+docker build . -t registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.0RC4 --no-cache
+docker push registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.0RC4
