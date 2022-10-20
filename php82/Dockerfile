@@ -97,7 +97,7 @@ RUN     docker-php-ext-configure zip \
         && docker-php-ext-enable \
             redis \
         # xDebug \
-        && pecl install xdebug \
+        && pecl install xdebug-3.2.0RC1 \
         && docker-php-ext-enable xdebug \
         # OPCACHE
         && docker-php-ext-install opcache \
