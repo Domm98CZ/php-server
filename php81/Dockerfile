@@ -6,11 +6,11 @@ ARG ACCEPT_EULA=Y
 
 # Prepare wkhtmltox
 ENV PHP_WKHTMLTOX_VERSION='0.12.6-1'
-COPY ./drivers/wkhtmltox/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb /tmp/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb
+COPY ./extensions/wkhtmltox/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb /tmp/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb
 
 
 # Prepare opcache
-COPY    ./drivers/php_settings/opcache.ini ${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini
+COPY    ./conf/opcache.ini ${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini
 RUN     chmod 644 ${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini
 
 RUN     apt-get -y update \
