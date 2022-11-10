@@ -1,124 +1,163 @@
-FROM php:8.1.11-apache-buster
+FROM php:8.1.12-apache-buster
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
 ARG ACCEPT_EULA=Y
 
+# App
+ENV PHP_APPLICATION_DIR='/var/www/app'
+
 # Prepare wkhtmltox
 ENV PHP_WKHTMLTOX_VERSION='0.12.6-1'
-COPY ./extensions/wkhtmltox/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb /tmp/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb
 
+# Insert configuration
+COPY ./php.ini ${PHP_INI_DIR}/conf.d/php-server-settings.ini
+RUN chmod 644 ${PHP_INI_DIR}/conf.d/php-server-settings.ini
 
-# Prepare opcache
-COPY    ./conf/opcache.ini ${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini
-RUN     chmod 644 ${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini
+# Run update
+RUN apt-get -y update \
+    && cp /etc/apt/sources.list /etc/apt/sources.list~ \
+    && sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
 
-RUN     apt-get -y update \
-        && cp /etc/apt/sources.list /etc/apt/sources.list~ \
-        && sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
+# Run update & upgrade & get packages
+RUN apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends --allow-unauthenticated \
+    # Basic container applications
+    cmake \
+    apt-transport-https \
+    lsb-release \
+    ca-certificates \
+    wget \
+    krb5-user \
+    libpam-krb5 \
+    gnupg \
+    nodejs \
+    acl \
+    git \
+    npm \
+    cron \
+    openssh-client \
+    gettext-base \
+    unzip \
+    supervisor \
+    openssl \
+    nano \
+    mc \
+    tmux \
+    htop \
+    iputils-ping \
+    telnet \
+    postgresql-client \
+    ncdu \
+    curl \
+    build-essential \
+    libsasl2-dev \
+    libssl-dev \
+    python-minimal \
+    zlib1g-dev \
+    # PHP Extensions dependencies
+    gnupg \
+    libzip-dev \
+    zip \
+    libxml2-dev \
+    libpq-dev \
+    # GD
+    libfreetype6-dev \
+    libmcrypt-dev \
+    libjpeg62-turbo-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libldap2-dev \
+    libicu-dev
 
-RUN     apt-get update && apt-get upgrade -y \
-        && apt-get install -y --no-install-recommends --allow-unauthenticated \
-            # Basic container applications
-            cmake \
-            apt-transport-https \
-            lsb-release \
-            ca-certificates \
-            wget \
-            krb5-user \
-            libpam-krb5 \
-            gnupg \
-            nodejs \
-            acl \
-            git \
-            npm \
-            cron \
-            openssh-client \
-            gettext-base \
-            unzip \
-            supervisor \
-            openssl \
-            nano \
-            mc \
-            tmux \
-            htop \
-            iputils-ping \
-            telnet \
-            postgresql-client \
-            ncdu \
-            curl \
-            build-essential \
-            libsasl2-dev \
-            libssl-dev \
-            python-minimal \
-            zlib1g-dev \
-            # PHP Extensions dependencies
-            gnupg \
-            libzip-dev \
-            zip \
-            libxml2-dev \
-            libpq-dev \
-            libfreetype6-dev \
-            libmcrypt-dev \
-            libjpeg62-turbo-dev \
-            libjpeg-dev \
-            libpng-dev \
-            libldap2-dev \
-            libicu-dev
+# Prepare scripts
+RUN echo "alias agi='apt-get install'" >> ~/.bashrc \
+    && echo "alias ..='cd ..'" >> ~/.bashrc \
+    && echo "alias c='clear'" >> ~/.bashrc \
+    && echo "alias ll='ls -l'" >> ~/.bashrc \
+    && echo "alias lf='ls -F'" >> ~/.bashrc \
+    && echo "alias lsz='du -sh * | sort -h'" >> ~/.bashrc \
+    && echo "alias untar='tar -zxvf'" >> ~/.bashrc \
+    && echo "alias h='history'" >> ~/.bashrc \
+    && echo "alias hg='history | grep'" >> ~/.bashrc \
+    && echo "alias j='jobs -l'" >> ~/.bashrc \
+    && echo "alias update='apt-get update && apt-get upgrade'" >> ~/.bashrc \
+    && echo "alias nowtime='date +\"%T\"'" >> ~/.bashrc \
+    && echo "alias nowdate='date +\"%d-%m-%Y\"'" >> ~/.bashrc \
+    && echo "alias cda='cd ${PHP_APPLICATION_DIR}'" >> ~/.bashrc \
+    && echo "alias cdaw='cd ${PHP_APPLICATION_DIR}/www'" >> ~/.bashrc \
+    && echo "alias cu='composer update'" >> ~/.bashrc \
+    && echo "alias ci='composer install'" >> ~/.bashrc \
+    && echo "alias ni='npm install'" >> ~/.bashrc \
+    && echo "alias nu='npm update'" >> ~/.bashrc \
+    && echo "alias rms='rm -i'" >> ~/.bashrc \
+    && echo "alias cps='cp -i'" >> ~/.bashrc \
+    && echo "alias mvs='mv -i'" >> ~/.bashrc \
+    && /bin/bash -ic "source ~/.bashrc"
+
+# Install wkHtmlToPdf
+RUN wget -O /tmp/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/${PHP_WKHTMLTOX_VERSION}/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb \
+    && apt-get -qy install /tmp/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb
 
 # Use the default production php configuration
-RUN     mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini" && \
-        sed -i 's/expose_php = On/expose_php = Off/g' ${PHP_INI_DIR}/php.ini
+RUN mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini" && \
+    sed -i 's/expose_php = On/expose_php = Off/g' ${PHP_INI_DIR}/php.ini
 
 # Microsoft SQL Drivers dependencies
-RUN     curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-        && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
-        && apt-get update && apt-get -y --no-install-recommends install \
-            unixodbc-dev \
-            msodbcsql17 \
-            libtool
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update && apt-get -y --no-install-recommends install \
+      unixodbc-dev \
+      msodbcsql17 \
+      libtool
 
 # Install php extensions
-RUN     docker-php-ext-configure zip \
-        && docker-php-ext-configure intl \
-        && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-        && export PHP_DTRACE=yes \
-        # Install PHP extensions
-        && docker-php-ext-install \
-            zip \
-            soap \
-            intl \
-            ldap \
-            bcmath \
-            pdo_mysql \
-            pdo pdo_pgsql pgsql \
-        # redis
-        && pecl install redis \
-        && docker-php-ext-enable \
-            redis \
-        # xDebug \
-        && pecl install xdebug \
-        && docker-php-ext-enable xdebug \
-        # OPCACHE
-        && docker-php-ext-install opcache \
-        && docker-php-ext-enable opcache \
-        # Microsoft ODBC
-        && pecl install \
-            sqlsrv-5.10.1 \
-            pdo_sqlsrv-5.10.1 \
-        && docker-php-ext-enable \
-            sqlsrv \
-            pdo_sqlsrv
-
+RUN docker-php-ext-configure zip \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
+    && export PHP_DTRACE=yes \
+    # Install PHP extensions
+    && docker-php-ext-install \
+        zip \
+        soap \
+        intl \
+        ldap \
+        bcmath \
+        pdo_mysql \
+        pdo pdo_pgsql pgsql \
+#         # GD
+#        freetype \
+#        libjpeg-turbo \
+#        libpng \
+#        freetype-dev \
+#        libjpeg-turbo-dev \
+#        libpng-dev \
+    # redis
+    && pecl install redis \
+    && docker-php-ext-enable \
+        redis \
+    # xDebug \
+#    && pecl install xdebug \
+#    && docker-php-ext-enable xdebug \
+    # OPCACHE
+    && docker-php-ext-install opcache \
+    && docker-php-ext-enable opcache \
+    # Microsoft ODBC
+    && pecl install \
+        sqlsrv-5.10.1 \
+        pdo_sqlsrv-5.10.1 \
+    && docker-php-ext-enable \
+        sqlsrv \
+        pdo_sqlsrv
 
 # Enable PHP GD with Freetype support
-RUN     docker-php-ext-configure gd \
-            --with-freetype \
-#            --enable-gd-native-ttf \
-#            --with-freetype-dir=/usr/include/freetype2 \
-#            --with-png-dir=/usr/include \
-#            --with-jpeg-dir=/usr/include \
-        && docker-php-ext-install gd
+RUN docker-php-ext-configure gd \
+      --with-freetype \
+#      --enable-gd-native-ttf \
+#      --with-freetype-dir=/usr/include/freetype2 \
+#      --with-png-dir=/usr/include \
+#      --with-jpeg-dir=/usr/include \
+    && docker-php-ext-install gd
 
 # fix openSSL
 RUN sed -i -E 's/(CipherString\s*=\s*DEFAULT@SECLEVEL=)2/\11/' /etc/ssl/openssl.cnf
@@ -141,10 +180,16 @@ RUN set -e; \
     adduser --disabled-password --gecos "" composer; \
     composer self-update;
 
-# Install wkHtmlToPdf
-RUN apt-get -qy install /tmp/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb
+# Install NPM
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    npm
+RUN npm install npm@latest -g && \
+    npm install n -g && \
+    n latest
 
 # Clean up
 RUN apt-get clean \
     && apt-get autoclean \
-    && npm cache clean -f
+    && npm cache clean -f \
+    && rm -rf /tmp/*
