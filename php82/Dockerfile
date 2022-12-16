@@ -1,4 +1,4 @@
-FROM php:8.2.0RC5-apache-buster
+FROM php:8.2.0-apache-bullseye
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -53,7 +53,7 @@ RUN apt-get update && apt-get upgrade -y \
     build-essential \
     libsasl2-dev \
     libssl-dev \
-    python-minimal \
+    python-is-python3 \
     zlib1g-dev \
     # PHP Extensions dependencies
     gnupg \
@@ -105,7 +105,7 @@ RUN mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini" && \
 
 # Microsoft SQL Drivers dependencies
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update && apt-get -y --no-install-recommends install \
     unixodbc-dev \
     msodbcsql17 \
