@@ -1,4 +1,4 @@
-FROM php:8.1.13-apache-bullseye
+FROM php:8.1.16-apache-bullseye
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -141,14 +141,7 @@ RUN docker-php-ext-configure zip \
 #    && docker-php-ext-enable xdebug \
     # OPCACHE
     && docker-php-ext-install opcache \
-    && docker-php-ext-enable opcache \
-    # Microsoft ODBC
-    && pecl install \
-        sqlsrv-5.10.1 \
-        pdo_sqlsrv-5.10.1 \
-    && docker-php-ext-enable \
-        sqlsrv \
-        pdo_sqlsrv
+    && docker-php-ext-enable opcache
 
 # Enable PHP GD with Freetype support
 RUN docker-php-ext-configure gd \

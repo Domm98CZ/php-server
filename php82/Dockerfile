@@ -1,4 +1,4 @@
-FROM php:8.2.0-apache-bullseye
+FROM php:8.2.2-apache-bullseye
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -54,21 +54,23 @@ RUN apt-get update && apt-get upgrade -y \
     libsasl2-dev \
     libssl-dev \
     python-is-python3 \
+    libpq-dev \
+    libldap2-dev \
+    libicu-dev \
     zlib1g-dev \
     # PHP Extensions dependencies
     gnupg \
     libzip-dev \
     zip \
+    libmcrypt-dev \
     libxml2-dev \
     # GD
-    libpq-dev \
     libfreetype6-dev \
-    libmcrypt-dev \
     libjpeg62-turbo-dev \
     libjpeg-dev \
     libpng-dev \
-    libldap2-dev \
-    libicu-dev
+    libwebp-dev \
+    libxpm-dev
 
 # Prepare scripts
 RUN echo "alias agi='apt-get install'" >> ~/.bashrc \
@@ -141,20 +143,13 @@ RUN docker-php-ext-configure zip \
 #    && docker-php-ext-enable xdebug \
     # OPCACHE
     && docker-php-ext-install opcache \
-    && docker-php-ext-enable opcache \
-    # Microsoft ODBC
-    && pecl install \
-        sqlsrv-5.10.1 \
-        pdo_sqlsrv-5.10.1 \
-    && docker-php-ext-enable \
-        sqlsrv \
-        pdo_sqlsrv
-
+    && docker-php-ext-enable opcache
 # Enable PHP GD with Freetype support
 RUN     docker-php-ext-configure gd \
             --with-freetype \
+#            --with-png=/usr/include/ \
+            --with-jpeg=/usr/include/ \
 #            --enable-gd-native-ttf \
-#            --with-freetype-dir=/usr/include/freetype2 \
 #            --with-png-dir=/usr/include \
 #            --with-jpeg-dir=/usr/include \
         && docker-php-ext-install gd

@@ -1,14 +1,4 @@
-# php-server:8.2.0RC4
+# php-server:8.2.2
 cd php82
-docker build . -t registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.0RC4 --no-cache
-docker push registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.0RC4
-
-# php-server:8.2.0RC5
-cd php82
-docker build . -t registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.0RC5 --no-cache
-docker push registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.0RC5
-
-# php-server:8.2.0
-cd php82
-docker build . -t registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.0 --no-cache
-docker push registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.0
+docker build . -t registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.2 --no-cache
+docker push registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.2
