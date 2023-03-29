@@ -1,4 +1,4 @@
-FROM php:8.2.2-apache-bullseye
+FROM php:8.2.4-apache-bullseye
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -56,7 +56,11 @@ RUN apt-get update && apt-get upgrade -y \
     python-is-python3 \
     libpq-dev \
     libldap2-dev \
+    libtiff-dev \
     libicu-dev \
+    libmagickwand-dev \
+    libmagickcore-dev \
+    imagemagick \
     zlib1g-dev \
     # PHP Extensions dependencies
     gnupg \
@@ -153,6 +157,11 @@ RUN     docker-php-ext-configure gd \
 #            --with-png-dir=/usr/include \
 #            --with-jpeg-dir=/usr/include \
         && docker-php-ext-install gd
+
+# Enable Imagick
+RUN pecl install imagick \
+    && docker-php-ext-enable imagick
+
 
 # fix openSSL
 RUN sed -i -E 's/(CipherString\s*=\s*DEFAULT@SECLEVEL=)2/\11/' /etc/ssl/openssl.cnf
