@@ -1,4 +1,4 @@
-FROM php:8.1.18-apache-bullseye
+FROM php:8.1.19-apache-bullseye
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
