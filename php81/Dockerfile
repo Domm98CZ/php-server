@@ -1,4 +1,4 @@
-FROM php:8.1.19-apache-bullseye
+FROM php:8.1.20-apache-bullseye
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -16,6 +16,7 @@ RUN chmod 644 ${PHP_INI_DIR}/conf.d/php-server-settings.ini
 
 # Run update
 RUN apt-get -y update \
+    && touch /etc/apt/sources.list \
     && cp /etc/apt/sources.list /etc/apt/sources.list~ \
     && sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
 
