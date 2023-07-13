@@ -1,4 +1,4 @@
-FROM php:8.2.7-apache-bullseye
+FROM php:8.2.8-apache-bookworm
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -8,7 +8,7 @@ ARG ACCEPT_EULA=Y
 ENV PHP_APPLICATION_DIR='/var/www/app'
 
 # Prepare wkhtmltox
-ENV PHP_WKHTMLTOX_VERSION='0.12.6-1'
+ENV PHP_WKHTMLTOX_VERSION='0.12.6.1-3'
 
 # Insert configuration
 COPY ./php.ini ${PHP_INI_DIR}/conf.d/php-server-settings.ini
@@ -103,8 +103,9 @@ RUN echo "alias agi='apt-get install'" >> ~/.bashrc \
     && /bin/bash -ic "source ~/.bashrc"
 
 # Install wkHtmlToPdf
-RUN wget -O /tmp/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/${PHP_WKHTMLTOX_VERSION}/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb \
-    && apt-get -qy install /tmp/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.buster_amd64.deb
+RUN   wget https://github.com/wkhtmltopdf/packaging/releases/download/${PHP_WKHTMLTOX_VERSION}/wkhtmltox_${PHP_WKHTMLTOX_VERSION}.bookworm_amd64.deb \
+        && apt -qy install ./wkhtmltox_${PHP_WKHTMLTOX_VERSION}.bookworm_amd64.deb \
+        && rm wkhtmltox_${PHP_WKHTMLTOX_VERSION}.bookworm_amd64.deb
 
 # Use the default production php configuration
 RUN mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini" && \
