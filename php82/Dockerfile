@@ -1,4 +1,4 @@
-FROM php:8.2.9-apache-bookworm
+FROM php:8.2.12-apache-bookworm
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -77,6 +77,17 @@ RUN apt-get update && apt-get upgrade -y \
     libwebp-dev \
     libxpm-dev
 
+# Install NPM
+RUN     curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
+ENV     PATH="${EVO_NVM_DIR}/versions/node/v${EVO_NODE_VERSION}/bin/:${PATH}"
+RUN     apt-get update && apt-get install -y \
+        nodejs \
+        software-properties-common
+
+RUN     npm install n -g
+RUN     npm install npm@latest -g
+RUN     n stable
+
 # Prepare scripts
 RUN echo "alias agi='apt-get install'" >> ~/.bashrc \
     && echo "alias ..='cd ..'" >> ~/.bashrc \
@@ -122,12 +133,14 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
 # Install php extensions
 RUN docker-php-ext-configure zip \
     && docker-php-ext-configure intl \
+    && docker-php-ext-configure exif \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
     && export PHP_DTRACE=yes \
     # Install PHP extensions
     && docker-php-ext-install \
         zip \
         soap \
+        exif \
         intl \
         ldap \
         bcmath \
@@ -185,14 +198,6 @@ RUN set -e; \
     rm composer-setup.php; \
     adduser --disabled-password --gecos "" composer; \
     composer self-update;
-
-# Install NPM
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    npm
-RUN npm install npm@latest -g && \
-    npm install n -g && \
-    n latest
 
 # Clean up
 RUN apt-get clean \
