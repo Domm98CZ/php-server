@@ -1,4 +1,4 @@
-FROM php:8.2.13-apache-bookworm
+FROM php:8.2.18-apache-bookworm
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
