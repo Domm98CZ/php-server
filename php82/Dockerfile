@@ -1,4 +1,4 @@
-FROM php:8.2.18-apache-bookworm
+FROM php:8.2.19-apache-bookworm
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -76,6 +76,15 @@ RUN apt-get update && apt-get upgrade -y \
     libpng-dev \
     libwebp-dev \
     libxpm-dev
+
+# Locale
+RUN     apt-get update
+RUN     apt-get install -y locales
+RUN     sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen
+RUN     locale-gen
+RUN     echo "export LC_ALL=en_US.UTF-8" >> ~/.bashrc
+RUN     echo "export LANG=en_US.UTF-8" >> ~/.bashrc
+RUN     echo "export LANGUAGE=en_US.UTF-8" >> ~/.bashrc
 
 # Install NPM
 RUN     curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
