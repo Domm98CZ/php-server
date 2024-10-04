@@ -1,4 +1,4 @@
-FROM php:8.2.19-apache-bookworm
+FROM php:8.2.24-apache-bookworm
 
 # Basic debian-buster settings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -13,6 +13,9 @@ ENV PHP_WKHTMLTOX_VERSION='0.12.6.1-3'
 # Insert configuration
 COPY ./php.ini ${PHP_INI_DIR}/conf.d/php-server-settings.ini
 RUN chmod 644 ${PHP_INI_DIR}/conf.d/php-server-settings.ini
+
+# Insert scripts
+COPY ./scripts/* /usr/bin/
 
 # Run update
 RUN apt-get -y update \
@@ -99,6 +102,8 @@ RUN     n stable
 
 # Prepare scripts
 RUN echo "alias agi='apt-get install'" >> ~/.bashrc \
+    && for file in /usr/bin/*.sh; do mv -- ${file} ${file%%.sh} && chmod u+x ${file%%.sh}; done \
+    && echo "alias rmc='clearCache'" >> ~/.bashrc \
     && echo "alias ..='cd ..'" >> ~/.bashrc \
     && echo "alias c='clear'" >> ~/.bashrc \
     && echo "alias ll='ls -l'" >> ~/.bashrc \
@@ -175,17 +180,12 @@ RUN docker-php-ext-configure zip \
 # Enable PHP GD with Freetype support
 RUN     docker-php-ext-configure gd \
             --with-freetype \
-#            --with-png=/usr/include/ \
             --with-jpeg=/usr/include/ \
-#            --enable-gd-native-ttf \
-#            --with-png-dir=/usr/include \
-#            --with-jpeg-dir=/usr/include \
         && docker-php-ext-install gd
 
 # Enable Imagick
 RUN pecl install imagick \
     && docker-php-ext-enable imagick
-
 
 # fix openSSL
 RUN sed -i -E 's/(CipherString\s*=\s*DEFAULT@SECLEVEL=)2/\11/' /etc/ssl/openssl.cnf
