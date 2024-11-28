@@ -28,7 +28,7 @@ ENV     PATH="/usr/local/sbin:${PATH}"
 ENV     PATH="/usr/local/bin:${PATH}"
 
 ENV     NODE_PATH ${PHP_NVM_DIR}/v${PHP_NODE_VERSION}/lib/node_modules
-ENV     PATH      ${PHP_NVM_DIR}/versions/node/v${EVO_NODE_VERSION}/bin/:${PATH}
+ENV     PATH      ${PHP_NVM_DIR}/versions/node/v${PHP_NODE_VERSION}/bin/:${PATH}
 ENV     PATH      ${PHP_NVM_DIR}/v${PHP_NODE_VERSION}/bin:${PATH}
 
 # Run update
