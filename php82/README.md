@@ -1,4 +1,4 @@
-# php-server:8.2.24
+# php-server:8.2.35
 cd php82
-docker build . -t registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.24 --no-cache
-docker push registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.24
+docker build . -t registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.35 --no-cache
+docker push registry.gitlab.com/prochazka-dominik/docker/php-server:8.2.35
