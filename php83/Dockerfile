@@ -220,9 +220,7 @@ RUN     set -e; \
         adduser --disabled-password --gecos "" composer; \
         composer self-update;
 
-RUN     (a2dismod mpm_prefork || true) \
-        && a2enmod mpm_event \
-        && a2enmod rewrite \
+RUN     a2enmod rewrite \
         && a2enmod headers \
         && a2enmod expires \
         && a2enmod deflate \
